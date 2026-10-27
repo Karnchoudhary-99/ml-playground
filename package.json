@@ -1,0 +1,10 @@
+{
+  "name": "ml-playground",
+  "version": "0.1.0",
+  "description": "In-browser ML playground: train tiny models right in the browser",
+  "type": "module",
+  "scripts": {
+    "test": "node --test test/"
+  },
+  "license": "MIT"
+}
