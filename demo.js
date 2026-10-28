@@ -1,12 +1,19 @@
 // Interactive demo logic: dataset -> model -> canvas rendering.
 // Imports the exact same modules the Node tests cover, so the page and the
 // test suite can never drift apart.
-import { twoBlobs, moons, noisyLine } from "./src/datasets.js";
+import { twoBlobs, moons, spirals, rings, xorQuadrants, noisyLine } from "./src/datasets.js";
 import { fitStandardScaler } from "./src/scaling.js";
 import { KnnClassifier, KnnRegressor } from "./src/knn.js";
 import { LogisticRegression } from "./src/logistic.js";
 import { fitLinear } from "./src/linear.js";
 import { accuracy, mse, r2 } from "./src/metrics.js";
+import {
+  serializeLinear,
+  serializeLogistic,
+  serializeKnn,
+  modelFromString,
+  modelToString,
+} from "./src/serialization.js";
 
 const canvas = document.getElementById("chart");
 const ctx = canvas.getContext("2d");
@@ -20,6 +27,7 @@ const metricsEl = document.getElementById("metrics");
 let points = [];
 let seed = 42;
 let model = null; // { kind, predict(point) -> label | number, isClassifier }
+let rawModel = null; // the underlying trained model, for export
 let scaler = null;
 
 const COLORS = ["#2563eb", "#ea580c"];
@@ -29,8 +37,12 @@ function generate() {
   seed += 1;
   if (datasetEl.value === "blobs") points = twoBlobs({ n: 100, seed });
   else if (datasetEl.value === "moons") points = moons({ n: 100, seed });
+  else if (datasetEl.value === "spirals") points = spirals({ n: 100, seed });
+  else if (datasetEl.value === "rings") points = rings({ n: 100, seed });
+  else if (datasetEl.value === "xor") points = xorQuadrants({ n: 100, seed });
   else points = noisyLine({ n: 60, seed });
   model = null;
+  rawModel = null;
   draw();
   metricsEl.textContent = "Press Train to fit a model.";
 }
@@ -48,12 +60,14 @@ function train() {
   if (datasetEl.value === "line") {
     if (modelEl.value === "linear") {
       const lin = fitLinear(points);
+      rawModel = lin;
       model = { kind: "linear", isClassifier: false, predict: (p) => lin.predict(p.x) };
       metricsEl.textContent =
         `y = ${lin.a.toFixed(2)}x + ${lin.b.toFixed(2)} — ` +
         `MSE ${mse(points, model.predict).toFixed(3)}, R² ${r2(points, model.predict).toFixed(3)}`;
     } else {
       const knn = new KnnRegressor({ k }).fit(points);
+      rawModel = knn;
       model = { kind: "knn", isClassifier: false, predict: (p) => knn.predict(p) };
       metricsEl.textContent =
         `k-NN regressor (k=${k}) — MSE ${mse(points, model.predict).toFixed(3)}, ` +
@@ -64,12 +78,14 @@ function train() {
     const scaled = points.map((p) => ({ ...scaler.transform(p), label: p.label }));
     if (modelEl.value === "knn") {
       const knn = new KnnClassifier({ k }).fit(scaled);
+      rawModel = knn;
       model = {
         kind: "knn", isClassifier: true,
         predict: (p) => knn.predict(scaler.transform(p)),
       };
     } else {
       const logreg = new LogisticRegression({ epochs: 800 }).fit(scaled);
+      rawModel = logreg;
       model = {
         kind: "logistic", isClassifier: true,
         predict: (p) => logreg.predict(scaler.transform(p)),

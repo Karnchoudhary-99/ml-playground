@@ -28,6 +28,9 @@ your own point.</p>
     <select id="dataset">
       <option value="blobs">Two blobs (classification)</option>
       <option value="moons">Moons (classification)</option>
+      <option value="spirals">Spirals (classification)</option>
+      <option value="rings">Rings (classification)</option>
+      <option value="xor">XOR quadrants (classification)</option>
       <option value="line">Noisy line (regression)</option>
     </select>
   </label>
@@ -48,6 +51,9 @@ your own point.</p>
   </label>
   <button id="train">Train</button>
   <button id="reshuffle">New data</button>
+  <button id="export">Export model</button>
+  <button id="import">Import model</button>
+  <input id="importFile" type="file" accept=".json,application/json" hidden>
 </div>
 
 <canvas id="chart" width="640" height="480"></canvas>
