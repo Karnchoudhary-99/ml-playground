@@ -1,6 +1,6 @@
 // Runnable tour of every model: node examples/demo.mjs
 // Prints train/test metrics so the numbers in the README stay honest.
-import { twoBlobs, moons, noisyLine, trainTestSplit } from "../src/datasets.js";
+import { twoBlobs, moons, spirals, rings, xorQuadrants, noisyLine, trainTestSplit } from "../src/datasets.js";
 import { fitStandardScaler } from "../src/scaling.js";
 import { KnnClassifier, KnnRegressor } from "../src/knn.js";
 import { LogisticRegression } from "../src/logistic.js";
@@ -17,6 +17,9 @@ function reportClassification(name, train, test, predict) {
 for (const [datasetName, make] of [
   ["two blobs", () => twoBlobs({ n: 120, seed: 31 })],
   ["moons", () => moons({ n: 120, seed: 31 })],
+  ["spirals", () => spirals({ n: 120, seed: 31 })],
+  ["rings", () => rings({ n: 120, seed: 31 })],
+  ["xor quadrants", () => xorQuadrants({ n: 120, seed: 31 })],
 ]) {
   console.log(`\n== ${datasetName} (classification) ==`);
   const { train, test } = trainTestSplit(make(), { seed: 5 });
