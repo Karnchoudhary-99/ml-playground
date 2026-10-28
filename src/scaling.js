@@ -12,6 +12,12 @@ export function fitStandardScaler(points) {
       points.reduce((s, p) => s + (p[d] - mean[d]) ** 2, 0) / points.length;
     std[d] = Math.sqrt(variance) || 1; // constant feature -> scale 1, no NaN
   }
+  return scalerFromParams(mean, std);
+}
+
+// Rebuild a scaler from stored mean/std (e.g. loaded from a model file) so
+// an imported classifier scales new points exactly like the original did.
+export function scalerFromParams(mean, std) {
   return {
     transform: (p) => ({ x: (p.x - mean.x) / std.x, y: (p.y - mean.y) / std.y }),
     inverse: (p) => ({ x: p.x * std.x + mean.x, y: p.y * std.y + mean.y }),
