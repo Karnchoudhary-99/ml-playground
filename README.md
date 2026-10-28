@@ -10,7 +10,7 @@ build step, no dependencies. Plain JavaScript modules shared between Node
 - [x] Linear regression + k-NN trainers with live charts
 - [x] Interactive demo page (draw data, train, see the decision boundary)
 - [x] Model import/export + dataset presets
-- [ ] Self-review checklist, then public
+- [x] Self-review checklist, then public
 
 ## Quick start
 
