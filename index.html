@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ML Playground — train tiny models in your browser</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 1rem; color: #1a1a1a; }
+  h1 { font-size: 1.6rem; }
+  .controls { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: end; margin: 1rem 0; }
+  label { display: flex; flex-direction: column; font-size: 0.85rem; gap: 0.25rem; }
+  select, input, button { font: inherit; padding: 0.35rem 0.5rem; }
+  button { cursor: pointer; }
+  canvas { border: 1px solid #ccc; width: 100%; height: auto; background: #fff; cursor: crosshair; }
+  #metrics { font-variant-numeric: tabular-nums; margin-top: 0.5rem; }
+  code { background: #f2f2f2; padding: 0.1rem 0.3rem; }
+</style>
+</head>
+<body>
+<h1>ML Playground</h1>
+<p>Train tiny models right in the browser — no server, no build step.
+Pick a dataset and a model, hit <strong>Train</strong>, and watch the
+decision boundary (or regression curve) appear. Click the chart to add
+your own point.</p>
+
+<div class="controls">
+  <label>Dataset
+    <select id="dataset">
+      <option value="blobs">Two blobs (classification)</option>
+      <option value="moons">Moons (classification)</option>
+      <option value="line">Noisy line (regression)</option>
+    </select>
+  </label>
+  <label>Model
+    <select id="model">
+      <option value="knn">k-NN</option>
+      <option value="logistic">Logistic regression</option>
+    </select>
+  </label>
+  <label id="kWrap">k
+    <input id="k" type="number" value="5" min="1" max="25">
+  </label>
+  <label>Click adds label
+    <select id="clickLabel">
+      <option value="0">0 (blue)</option>
+      <option value="1">1 (orange)</option>
+    </select>
+  </label>
+  <button id="train">Train</button>
+  <button id="reshuffle">New data</button>
+</div>
+
+<canvas id="chart" width="640" height="480"></canvas>
+<p id="metrics">Press Train to fit a model.</p>
+<p><small>Models are the same dependency-free modules under <code>src/</code>
+that the Node tests exercise. Serve this folder with
+<code>python3 -m http.server</code> and open
+<code>http://localhost:8000</code> (ES modules need http, not
+<code>file://</code>).</small></p>
+
+<script type="module" src="./demo.js"></script>
+</body>
+</html>
