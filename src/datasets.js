@@ -52,6 +52,56 @@ export function noisyLine({ n = 50, seed = 42, noise = 0.6 } = {}) {
   return points;
 }
 
+// Two interleaving spirals: the hardest teaching case here — a linear model
+// scores near chance while k-NN follows the arms. Angle grows with radius.
+export function spirals({ n = 100, seed = 42, noise = 0.15 } = {}) {
+  const rng = mulberry32(seed);
+  const points = [];
+  for (let i = 0; i < n; i++) {
+    const label = i % 2;
+    const t = (i / n) * 2 * Math.PI * 2; // two full turns, interleaved
+    const r = 0.3 + t * 0.35;
+    const angle = t + label * Math.PI;
+    points.push({
+      x: r * Math.cos(angle) + gaussian(rng) * noise,
+      y: r * Math.sin(angle) + gaussian(rng) * noise,
+      label,
+    });
+  }
+  return points;
+}
+
+// Concentric rings: inner ring label 0, outer ring label 1. No single line
+// separates them, so it is a clean non-linearity demo next to moons.
+export function rings({ n = 100, seed = 42, noise = 0.15 } = {}) {
+  const rng = mulberry32(seed);
+  const points = [];
+  for (let i = 0; i < n; i++) {
+    const label = i % 2;
+    const radius = label === 0 ? 1 : 2.5;
+    const angle = rng() * 2 * Math.PI;
+    points.push({
+      x: radius * Math.cos(angle) + gaussian(rng) * noise,
+      y: radius * Math.sin(angle) + gaussian(rng) * noise,
+      label,
+    });
+  }
+  return points;
+}
+
+// XOR quadrants: label is 1 exactly when x and y have opposite signs.
+// The classic case a single linear boundary cannot solve at all.
+export function xorQuadrants({ n = 100, seed = 42 } = {}) {
+  const rng = mulberry32(seed);
+  const points = [];
+  for (let i = 0; i < n; i++) {
+    const x = (rng() * 2 - 1) * 3;
+    const y = (rng() * 2 - 1) * 3;
+    points.push({ x, y, label: (x > 0) !== (y > 0) ? 1 : 0 });
+  }
+  return points;
+}
+
 // Deterministic train/test split that keeps class balance for labelled data.
 export function trainTestSplit(points, { testFraction = 0.25, seed = 99 } = {}) {
   const rng = mulberry32(seed);
