@@ -63,6 +63,12 @@ scaler, so imported predictions match the original exactly (verified by
 | Two blobs | Logistic regression | 98.9% acc | 100.0% acc |
 | Moons | k-NN (k=5) | 100.0% acc | 96.7% acc |
 | Moons | Logistic regression | 87.8% acc | 83.3% acc |
+| Spirals | k-NN (k=5) | 100.0% acc | 80.0% acc |
+| Spirals | Logistic regression | 57.8% acc | 53.3% acc |
+| Rings | k-NN (k=5) | 100.0% acc | 100.0% acc |
+| Rings | Logistic regression | 64.4% acc | 46.7% acc |
+| XOR quadrants | k-NN (k=5) | 100.0% acc | 93.3% acc |
+| XOR quadrants | Logistic regression | 64.4% acc | 40.0% acc |
 | Noisy line | Linear regression | — | MSE 0.450, R² 0.976 |
 | Noisy line | k-NN regressor (k=3) | — | MSE 0.046, R² 0.997 |
 
