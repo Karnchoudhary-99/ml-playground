@@ -173,6 +173,47 @@ canvas.addEventListener("click", (event) => {
   else draw();
 });
 
+function exportModel() {
+  if (!model || !rawModel) {
+    metricsEl.textContent = "Train a model first, then export it.";
+    return;
+  }
+  let doc;
+  if (model.kind === "linear") doc = serializeLinear(rawModel);
+  else if (model.kind === "logistic") doc = serializeLogistic(rawModel, scaler);
+  else doc = serializeKnn(rawModel, model.isClassifier ? scaler : null);
+  const blob = new Blob([modelToString(doc)], { type: "application/json" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `ml-playground-${model.kind}.json`;
+  link.click();
+  URL.revokeObjectURL(link.href);
+  metricsEl.textContent = `Exported ${model.kind} model as JSON.`;
+}
+
+async function importModel(file) {
+  try {
+    const { type, model: loaded, scaler: loadedScaler } = modelFromString(await file.text());
+    scaler = loadedScaler;
+    rawModel = loaded;
+    const scaled = (p) => (scaler ? scaler.transform(p) : p);
+    if (type === "linear") {
+      model = { kind: "linear", isClassifier: false, predict: (p) => loaded.predict(p.x) };
+    } else if (type === "logistic") {
+      model = { kind: "logistic", isClassifier: true, predict: (p) => loaded.predict(scaled(p)) };
+    } else if (type === "knn-classifier") {
+      model = { kind: "knn", isClassifier: true, predict: (p) => loaded.predict(scaled(p)) };
+    } else {
+      model = { kind: "knn", isClassifier: false, predict: (p) => loaded.predict(p) };
+    }
+    metricsEl.textContent =
+      `Imported ${type} model — its boundary/curve now renders over the current points.`;
+    draw();
+  } catch (err) {
+    metricsEl.textContent = `Import failed: ${err.message}`;
+  }
+}
+
 datasetEl.addEventListener("change", () => {
   syncModelOptions();
   generate();
@@ -182,6 +223,15 @@ modelEl.addEventListener("change", () => {
 });
 document.getElementById("train").addEventListener("click", train);
 document.getElementById("reshuffle").addEventListener("click", generate);
+document.getElementById("export").addEventListener("click", exportModel);
+document.getElementById("import").addEventListener("click", () => {
+  document.getElementById("importFile").click();
+});
+document.getElementById("importFile").addEventListener("change", (event) => {
+  const file = event.target.files[0];
+  event.target.value = "";
+  if (file) importModel(file);
+});
 
 syncModelOptions();
 generate();
